@@ -47,8 +47,8 @@ client.on('message', msg => {
   const thing = words.split(/\r?\n/)
 
   if (args[0].toLowerCase() == '.repeat' && msg.author.id == ownerID) {
-    let send = args.splice(0, 1)
-    let join = send.join(' ')
+    args.splice(0, 1)
+    let join = args.join(' ')
     msg.channel.send(join)
   }
 
