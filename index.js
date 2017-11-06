@@ -13,6 +13,8 @@ fs.readFile('words.txt', 'utf8', function(err, data) {
   words = data
 })
 
+const ownerID = '193215265998110720'
+
 client.on('ready', () => {
   console.log('Bot is now online :D')
   client.user.setGame('Your Mom Lol')
@@ -44,6 +46,12 @@ client.on('message', msg => {
   const args = msg.content.split(/ +/g)
   const thing = words.split(/\r?\n/)
 
+  if (args[0].toLowerCase() == '.repeat' && msg.author.id == ownerID) {
+    let send = args.splice(0, 1)
+    let join = send.join(' ')
+    msg.channel.send(join)
+  }
+
   if (args[0].toLowerCase() == '.words') {
     if (isInt(args[1])) {
       amount[msg.guild.id].amount = args[1]
@@ -56,22 +64,22 @@ client.on('message', msg => {
     }
   }
 
-function getRanWord() {
-  var fin = ""
-  for (i = 0; i < amount[msg.guild.id].amount; i++) {
-    fin += thing[Math.floor(Math.random() * thing.length)] + " "
+  function getRanWord() {
+    var fin = ""
+    for (i = 0; i < amount[msg.guild.id].amount; i++) {
+      fin += thing[Math.floor(Math.random() * thing.length)] + " "
+    }
+    return fin
   }
-  return fin
-}
 
-if (msg.content.startsWith('<@!376205502100537356>') || msg.content.startsWith('<@376205502100537356>')) {
-  if ((Math.floor(Math.random() * 99) + 1) <= chance) {
-    console.log()
-    msg.channel.send(getRanWord())
-  } else {
-    return
+  if (msg.content.startsWith('<@!376205502100537356>') || msg.content.startsWith('<@376205502100537356>')) {
+    if ((Math.floor(Math.random() * 99) + 1) <= chance) {
+      console.log()
+      msg.channel.send(getRanWord())
+    } else {
+      return
+    }
   }
-}
 })
 
 client.login('Mzc2MjA1NTAyMTAwNTM3MzU2.DN7AMA.QtazoBVFw_iGVqEJLNVKCFCkEKA')
