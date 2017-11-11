@@ -18,7 +18,7 @@ const kryID = '282704602191626241'
 
 client.on('ready', () => {
   console.log('Bot is now online :D')
-  client.user.setGame('Your Mom Lol')
+  client.user.setGame('https://discord.gg/cy33kkW')
 })
 
 function isInt(value) {
