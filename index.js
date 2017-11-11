@@ -14,6 +14,7 @@ fs.readFile('words.txt', 'utf8', function(err, data) {
 })
 
 const ownerID = '193215265998110720'
+const adminID = ['282704602191626241']
 
 client.on('ready', () => {
   console.log('Bot is now online :D')
@@ -46,7 +47,7 @@ client.on('message', msg => {
   const args = msg.content.split(/ +/g)
   const thing = words.split(/\r?\n/)
 
-  if (args[0].toLowerCase() == '.repeat' && msg.author.id == ownerID) {
+  if (args[0].toLowerCase() == '.repeat' && msg.author.id == ownerID || adminID) {
     args.splice(0, 1)
     let join = args.join(' ')
     msg.channel.send(join)
