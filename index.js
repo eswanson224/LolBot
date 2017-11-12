@@ -5,6 +5,7 @@ const req = require('request')
 const fs = require('fs')
 
 const amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
+const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
 
 var words
 
@@ -77,9 +78,11 @@ client.on('message', msg => {
     if ((Math.floor(Math.random() * 99) + 1) <= chance) {
       console.log()
       msg.channel.send(getRanWord())
-    } else {
-      return
     }
+  }
+
+  if (args[0] == '!payday' && msg.author.id == '280785364501921796'){
+    msg.channel.send('<@280785364501921796> it is thyme to stop\'th')
   }
 })
 
