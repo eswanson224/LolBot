@@ -29,9 +29,9 @@ function isInt(value) {
 client.on('message', msg => {
   if (msg.author.bot) return
 
-  if (msg.channel.type == 'dm') {
-    return
-  }
+  if (msg.channel.type == 'dm') return
+
+  const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
 
   if (!amount[msg.guild.id]) {
     amount[msg.guild.id] = {
@@ -43,7 +43,7 @@ client.on('message', msg => {
     })
   }
 
-  var chance = 100 //For stuff later
+  var chance = 25
 
   const args = msg.content.split(/ +/g)
   const thing = words.split(/\r?\n/)
@@ -75,14 +75,19 @@ client.on('message', msg => {
   }
 
   if (msg.content.startsWith('<@!376205502100537356>') || msg.content.startsWith('<@376205502100537356>')) {
-    if ((Math.floor(Math.random() * 99) + 1) <= chance) {
-      console.log()
+    if ((Math.floor(Math.random() * 99) + 1) <= 100) {
       msg.channel.send(getRanWord())
     }
   }
 
   if (args[0] == '!payday' && msg.author.id == '280785364501921796'){
     msg.channel.send('<@280785364501921796> it is thyme to stop\'th')
+  }
+
+  if (args[0].toLowerCase() == 'oof'){
+    if ((Math.floor(Math.random() * 99) + 1) <= 33) {
+      msg.channel.send(oof)
+    }
   }
 })
 
