@@ -43,10 +43,21 @@ client.on('message', msg => {
     })
   }
 
-  var chance = 25
-
   const args = msg.content.split(/ +/g)
   const thing = words.split(/\r?\n/)
+
+  function getRanWord() {
+    var fin = ""
+    for (i = 0; i < amount[msg.guild.id].amount; i++) {
+      fin += thing[Math.floor(Math.random() * thing.length)] + " "
+    }
+    return fin
+  }
+
+  function yn() {
+    let yn = ['yes', 'no']
+    return yn[Math.floor(Math.random() * 2)]
+  }
 
   if (args[0].toLowerCase() == '.repeat' && (msg.author.id == ownerID || msg.author.id == kryID)) {
     args.splice(0, 1)
@@ -66,14 +77,6 @@ client.on('message', msg => {
     }
   }
 
-  function getRanWord() {
-    var fin = ""
-    for (i = 0; i < amount[msg.guild.id].amount; i++) {
-      fin += thing[Math.floor(Math.random() * thing.length)] + " "
-    }
-    return fin
-  }
-
   if (msg.content.startsWith('<@!376205502100537356>') || msg.content.startsWith('<@376205502100537356>')) {
     if ((Math.floor(Math.random() * 99) + 1) <= 100) {
       msg.channel.send(getRanWord())
@@ -88,6 +91,10 @@ client.on('message', msg => {
     if ((Math.floor(Math.random() * 99) + 1) <= 33) {
       msg.channel.send(oof)
     }
+  }
+
+  if (msg.attachments.array().length != 0) {
+    msg.channel.send(yn())
   }
 })
 
