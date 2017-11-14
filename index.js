@@ -77,8 +77,10 @@ client.on('message', msg => {
     }
   }
 
-  if (msg.content.startsWith('<@!376205502100537356>') || msg.content.startsWith('<@376205502100537356>')) {
-    if ((Math.floor(Math.random() * 99) + 1) <= 100) {
+  if (args[0] == '<@!376205502100537356>' || args[0] == '<@376205502100537356>') {
+    if (args[1].toLowerCase() == 'yn') {
+      msg.channel.send(yn())
+    } else if ((Math.floor(Math.random() * 99) + 1) <= 100) {
       msg.channel.send(getRanWord())
     }
   }
