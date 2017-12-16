@@ -80,24 +80,28 @@ client.on('message', msg => {
   if (args[0] == '<@!376205502100537356>' || args[0] == '<@376205502100537356>') {
     if (args[1].toLowerCase() == 'yn') {
       msg.channel.send(yn())
-    } else if ((Math.floor(Math.random() * 99) + 1) <= 100) {
+    } else {
       msg.channel.send(getRanWord())
     }
   }
 
+/*
   if (args[0] == '!payday' && msg.author.id == '280785364501921796'){
     msg.channel.send('<@280785364501921796> it is thyme to stop\'th')
   }
+*/
 
   if (args[0].toLowerCase() == 'oof'){
-    if ((Math.floor(Math.random() * 99) + 1) <= 33) {
+    if ((Math.floor(Math.random() * 99) + 1) <= 15) {
       msg.channel.send(oof)
     }
   }
 
+/*
   if (msg.attachments.array().length != 0) {
     msg.channel.send(yn())
   }
 })
+*/
 
 client.login('Mzc2MjA1NTAyMTAwNTM3MzU2.DN7AMA.QtazoBVFw_iGVqEJLNVKCFCkEKA')
