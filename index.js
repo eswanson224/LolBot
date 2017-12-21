@@ -101,7 +101,8 @@ client.on('message', msg => {
   if (msg.attachments.array().length != 0) {
     msg.channel.send(yn())
   }
-})
 */
+})
+
 
 client.login('Mzc2MjA1NTAyMTAwNTM3MzU2.DN7AMA.QtazoBVFw_iGVqEJLNVKCFCkEKA')
