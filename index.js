@@ -6,6 +6,7 @@ const fs = require('fs')
 
 const amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
 const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
+const payday = JSON.parse(fs.readFileSync("./payday.json", "utf8"))
 
 var words
 
@@ -16,6 +17,8 @@ fs.readFile('words.txt', 'utf8', function(err, data) {
 
 const ownerID = '193215265998110720'
 const kryID = '282704602191626241'
+
+const payCooldown = 300000
 
 client.on('ready', () => {
   console.log('Bot is now online :D')
@@ -34,9 +37,7 @@ client.on('message', msg => {
   const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
 
   if (!amount[msg.guild.id]) {
-    amount[msg.guild.id] = {
-      amount: 3
-    }
+    amount[msg.guild.id] = 3
 
     fs.writeFile("./amount.json", JSON.stringify(amount), (err) => {
       if (err) console.error(err)
@@ -48,7 +49,7 @@ client.on('message', msg => {
 
   function getRanWord() {
     var fin = ""
-    for (i = 0; i < amount[msg.guild.id].amount; i++) {
+    for (i = 0; i < amount[msg.guild.id]; i++) {
       fin += thing[Math.floor(Math.random() * thing.length)] + " "
     }
     return fin
@@ -59,6 +60,10 @@ client.on('message', msg => {
     return yn[Math.floor(Math.random() * 2)]
   }
 
+  if (args[0].toLowerCase() == '.help') {
+    msg.channel.send('```.repeat (only for the moist and the long)\n.words\n.payday\n.balance (or .bal)```')
+  }
+
   if (args[0].toLowerCase() == '.repeat' && (msg.author.id == ownerID || msg.author.id == kryID)) {
     args.splice(0, 1)
     let join = args.join(' ')
@@ -67,7 +72,7 @@ client.on('message', msg => {
 
   if (args[0].toLowerCase() == '.words') {
     if (isInt(args[1])) {
-      amount[msg.guild.id].amount = args[1]
+      amount[msg.guild.id] = args[1]
 
       msg.channel.send("Word amount succesfully set to " + args[1])
 
@@ -85,23 +90,49 @@ client.on('message', msg => {
     }
   }
 
-/*
-  if (args[0] == '!payday' && msg.author.id == '280785364501921796'){
-    msg.channel.send('<@280785364501921796> it is thyme to stop\'th')
-  }
-*/
-
   if (args[0].toLowerCase() == 'oof'){
     if ((Math.floor(Math.random() * 99) + 1) <= 15) {
       msg.channel.send(oof)
     }
   }
 
-/*
-  if (msg.attachments.array().length != 0) {
-    msg.channel.send(yn())
+  if (args[0].toLowerCase() == '.payday'){
+    if (!payday[msg.author.id]) {
+      payday[msg.author.id] = {
+        amount: 100,
+        cooldown: Date.now()
+      }
+      msg.channel.send(`<@${msg.author.id}> 100 credits have been added to your balance`)
+    } else if (payday[msg.author.id].cooldown + payCooldown < Date.now()) {
+      payday[msg.author.id].amount += 100
+      payday[msg.author.id].cooldown = Date.now()
+      msg.channel.send(`<@${msg.author.id}> 100 credits have been added to your balance`)
+    } else {
+      let waitTimeMil = payday[msg.author.id].cooldown + payCooldown - Date.now()
+      let waitTimeSec = Math.round(waitTimeMil / 1000)
+      let waitTimeMin = Math.floor(waitTimeSec / 60)
+      let waitTimeSecLeft = waitTimeSec - waitTimeMin * 60
+      if (waitTimeMin == 1) {
+        msg.channel.send(`<@${msg.author.id}> please wait ${waitTimeMin} minute and ${waitTimeSecLeft} seconds before collecting your next payday`)
+      } else if (waitTimeMin > 0) {
+        msg.channel.send(`<@${msg.author.id}> please wait ${waitTimeMin} minutes and ${waitTimeSecLeft} seconds before collecting your next payday`)
+      } else if (waitTimeMin == 0 && waitTimeSec == 1) {
+        msg.channel.send(`<@${msg.author.id}> please wait ${waitTimeSecLeft} second before collecting your next payday`)
+      } else if (waitTimeMin == 0) {
+        msg.channel.send(`<@${msg.author.id}> please wait ${waitTimeSecLeft} seconds before collecting your next payday`)
+      }
+
+    }
+
+    fs.writeFile("./payday.json", JSON.stringify(payday), (err) => {
+      if (err) console.error(err)
+    })
   }
-*/
+
+  if (args[0].toLowerCase() == '.balance' || args[0].toLowerCase() == '.bal') {
+    msg.channel.send(`<@${msg.author.id}> you have ${payday[msg.author.id].amount} credits`)
+  }
+
 })
 
 
