@@ -1,34 +1,47 @@
 const Discord = require('discord.js')
-const client = new Discord.Client
+const client = new Discord.Client()
 
 const req = require('request')
 const fs = require('fs')
 const mysql = require('mysql')
 const request = require('request')
 
-const amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
-const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
-const payday = JSON.parse(fs.readFileSync("./payday.json", "utf8"))
+const prefix = "."
+
+client.amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
+//const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
+//const payday = JSON.parse(fs.readFileSync("./payday.json", "utf8"))
 let users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
 
-var words
-
-fs.readFile('words.txt', 'utf8', function(err, data) {
-  if (err) throw err
-  words = data
-})
+client.words = fs.readFileSync("./words.txt", "utf8").split(/\r?\n/)
 
 const payCooldown = 900000
 const payAmount = 300
+
+//require('./functions.js')()
+client.config = require('./config.js')
+
+client.commands = {}
+client.aliases = {}
+
+fs.readdir("./commands", (err, files) => {
+  if (err) return console.error(err)
+  files.forEach(f => {
+    let command = require(`./commands/${f}`)
+    console.log(`Loading command ${command.help.name}`)
+    client.commands[command.help.name] = command
+    if (command.conf.aliases) {
+      command.conf.aliases.forEach(a => {
+        client.aliases[a] = command.help.name
+      })
+    }
+  })
+})
 
 client.on('ready', () => {
   console.log('Bot is now online :D')
   client.user.setGame('https://discord.gg/cy33kkW')
 })
-
-function isInt(value) {
-  return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10))
-}
 
 client.on('message', msg => {
   if (msg.author.bot) return
@@ -37,69 +50,17 @@ client.on('message', msg => {
 
   const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
 
-  if (!amount[msg.guild.id]) {
-    amount[msg.guild.id] = 3
+  if (!client.amount[msg.guild.id]) {
+    client.amount[msg.guild.id] = 3
 
     fs.writeFile("./amount.json", JSON.stringify(amount), (err) => {
       if (err) console.error(err)
     })
   }
 
-  const args = msg.content.split(/ +/g)
-  const thing = words.split(/\r?\n/)
+  const args = msg.content.split(" ")
 
   users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
-
-  function commandIs(command, rank) {
-    if (args[0].toLowerCase() == '.' + command) {
-      if (rank) {
-        if (users[msg.author.id] && users[msg.author.id].rank >= rank) {
-          return 2
-        } else {
-          return 1
-        }
-      } else {
-        return 2
-      }
-    }
-  }
-
-  function getRanWord() {
-    var fin = ""
-    for (i = 0; i < amount[msg.guild.id]; i++) {
-      fin += thing[Math.floor(Math.random() * thing.length)] + " "
-    }
-    return fin
-  }
-
-  function yn() {
-    let yn = ['yes', 'no']
-    return yn[Math.floor(Math.random() * 2)]
-  }
-
-  function s(amount) {
-    if (amount != 1) return 's'
-    else return ''
-  }
-
-  function sort(collection) {
-    var arr = []
-    for (var i in collection) {
-      arr.push({'id':i, 'amount':collection[i].amount})
-    }
-    arr.sort(function(a, b){return b.amount - a.amount})
-    return arr
-  }
-
-  function xor(data, key) {
-    var output = ''
-    for (var i = 0; i < data.length; i++) {
-      let c = data.charCodeAt(i)
-      let k = key.charCodeAt(i%key.length)
-      output += String.fromCharCode(c^k)
-    }
-    return output
-  }
 
   var same = 0
 
@@ -111,20 +72,18 @@ client.on('message', msg => {
     }
   }
 
-  if (commandIs('help')) {
-    msg.channel.send('```.repeat <message> (only for the moist and the long)\n.words <word amount>\n.payday\n.balance (or .bal) [user] (optional)\n.id <@user>```')
-  }
+  const command = args[0]
 
-  if (commandIs('repeat', 2) == 2) {
-    let repeat = msg.content.substr(msg.content.indexOf(' ') + 1)
-      if (repeat.length > 0) {
-        msg.channel.send(repeat)
-      } else {
-        msg.channel.send('```.repeat <message>\n\nFor the moist and the long to exploit lol.```')
-      }
-  } else if (commandIs('repeat', 2) == 1){
-  msg.channel.send('The `.repeat` command is only for the moist and the long.')
-  }
+  if (!command.startsWith(prefix)) return
+
+  const cmd = client.commands[command.substr(1)] || client.commands[client.aliases[command.substr(1)]]
+
+  if (!cmd) return
+
+  if (client.config.permLevels[cmd.conf.permLevel].check(msg)) cmd.run(client, msg, args)
+  else msg.channel.send(`You do not have the permission \u0060${cmd.conf.permLevel}\u0060 required to run this command`)
+
+/*
 
   if (commandIs('words')) {
     if (isInt(args[1])) {
@@ -156,7 +115,6 @@ client.on('message', msg => {
 
   if (same >= 6 && args[0].split('')[0] == '.') {
     msg.channel.send('I am sorry, the command `.payday` has been temporarily disabled')
-    /*
     if (!payday[msg.author.id]) {
       payday[msg.author.id] = {
         amount: payAmount,
@@ -181,7 +139,6 @@ client.on('message', msg => {
     fs.writeFile("./payday.json", JSON.stringify(payday), (err) => {
       if (err) console.error(err)
     })
-    */
   }
 
   if (commandIs('balance') || commandIs('bal')) {
@@ -279,8 +236,7 @@ client.on('message', msg => {
       }
       let postJson = JSON.parse(body)
       let imgUrl = postJson[0]['data']['children'][0]['data']['url']
-      let memeImg = new Discord.Attachment(imgUrl)
-      msg.channel.send(memeImg)
+      msg.channel.send({file: imgUrl})
     })
   }
 
@@ -297,8 +253,7 @@ client.on('message', msg => {
       }
       let postJson = JSON.parse(body)
       let imgUrl = postJson[0]['data']['children'][0]['data']['url']
-      let memeImg = new Discord.Attachment(imgUrl)
-      msg.channel.send(memeImg)
+      msg.channel.send({file: imgUrl})
     })
   }
 
@@ -334,13 +289,13 @@ client.on('message', msg => {
           "inline": true
         },
         {
-          "name": "Result",
+          "name": "Result:",
           "value": `\u0060${result}\u0060`,
           "inline": true
         }
       ]
     };
-    msg.channel.send({embed})
+    msg.channel.send(result, {embed})
   }
 
   if (commandIs('decrypt')) {
@@ -372,14 +327,15 @@ client.on('message', msg => {
           "inline": true
         },
         {
-          "name": "Result",
+          "name": "Result:",
           "value": `\u0060${result}\u0060`,
           "inline": true
         }
       ]
     };
-    msg.channel.send({embed})
+    msg.channel.send(result, {embed})
   }
+*/
 
 })
 
