@@ -1,7 +1,7 @@
 exports.run = (client, message, args) => {
   if (args[1]) {
     let stuff = message.content.substr(args[0].length + 1)
-    msg.channel.send(`${stuff} is stupid lmao :ok_hand:`)
+    message.channel.send(`${stuff} is stupid lmao :ok_hand:`)
   }
 }
 
