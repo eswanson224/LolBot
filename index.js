@@ -1,6 +1,7 @@
 const Discord = require('discord.js')
 const client = new Discord.Client()
 
+const chalk = require('chalk')
 const req = require('request')
 const fs = require('fs')
 const mysql = require('mysql')
@@ -28,7 +29,7 @@ fs.readdir("./commands", (err, files) => {
   if (err) return console.error(err)
   files.forEach(f => {
     let command = require(`./commands/${f}`)
-    console.log(`Loading command ${command.help.name}`)
+    console.log(chalk`{blue Loaded command ${command.help.name}}`)
     client.commands[command.help.name] = command
     if (command.conf.aliases) {
       command.conf.aliases.forEach(a => {
@@ -39,26 +40,26 @@ fs.readdir("./commands", (err, files) => {
 })
 
 client.on('ready', () => {
-  console.log('Bot is now online :D')
+  console.log(chalk`{green \nBot is now online :D}`)
   client.user.setGame('https://discord.gg/cy33kkW')
 })
 
-client.on('message', msg => {
-  if (msg.author.bot) return
+client.on('message', message => {
+  if (message.author.bot) return
 
-  if (msg.channel.type == 'dm') return
+  if (message.channel.type == 'dm') return
 
   const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
 
-  if (!client.amount[msg.guild.id]) {
-    client.amount[msg.guild.id] = 3
+  if (!client.amount[message.guild.id]) {
+    client.amount[message.guild.id] = 3
 
     fs.writeFile("./amount.json", JSON.stringify(amount), (err) => {
       if (err) console.error(err)
     })
   }
 
-  const args = msg.content.split(" ")
+  const args = message.content.split(" ")
 
   users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
 
@@ -80,33 +81,19 @@ client.on('message', msg => {
 
   if (!cmd) return
 
-  if (client.config.permLevels[cmd.conf.permLevel].check(msg)) cmd.run(client, msg, args)
-  else msg.channel.send(`You do not have the permission \u0060${cmd.conf.permLevel}\u0060 required to run this command`)
+  if (client.config.permLevels[cmd.conf.permLevel].check(message)) {
+    try {
+      cmd.run(client, message, args)
+    }
+    catch (err) {
+      message.channel.send("I'm sorry, there was an error.\nIf you have any questions or concerns please send a message to Moist")
+      client.users.get('193215265998110720').send(`Error: \u0060${err}\u0060 \nMessage: \u0060${message.content}\u0060 \nAuthor: \u0060${message.author.username}, ${message.author.id}\u0060`)
+      console.log(chalk`\n{bold.red Error:} ${err} \n{yellow Message:} ${message.content} \n{yellow Author:} ${message.author.username}, ${message.author.id}`)
+    }
+  }
+  else message.channel.send(`You do not have the permission \u0060${cmd.conf.permLevel}\u0060 required to run this command`)
 
 /*
-
-  if (commandIs('words')) {
-    if (isInt(args[1])) {
-      amount[msg.guild.id] = args[1]
-
-      msg.channel.send("Word amount succesfully set to " + args[1])
-
-      fs.writeFile("./amount.json", JSON.stringify(amount), (err) => {
-        if (err) console.error(err)
-      })
-    } else {
-      msg.channel.send('```.words <number>\n\nBot sets the word amount for the server.```')
-    }
-  }
-
-  if (args[0] == '<@!376205502100537356>' || args[0] == '<@376205502100537356>') {
-    if (args[1] && args[1].toLowerCase() == 'yn') {
-      msg.channel.send(yn())
-    } else {
-      msg.channel.send(getRanWord())
-    }
-  }
-
   if (args[0].toLowerCase() == 'oof'){
     if ((Math.floor(Math.random() * 99) + 1) <= 15) {
       msg.channel.send(oof)
@@ -179,14 +166,6 @@ client.on('message', msg => {
     msg.channel.send('The `.sub` command is only for the moist to exploit the pay system.')
   }
 
-  if (commandIs('id')) {
-    if (msg.mentions.members.first()) {
-      msg.channel.send(msg.mentions.members.first().id)
-    } else {
-      msg.channel.send('```.id <@user>\n\nGets the id of a user, only used for command perms.```')
-    }
-  }
-
   if (commandIs('leaderboard') || commandIs('board')) {
     let arr = sort(payday)
     var top = arr
@@ -196,144 +175,6 @@ client.on('message', msg => {
     }
     topMsg += '\u0060\u0060\u0060'
     msg.channel.send(topMsg)
-  }
-
-  if (commandIs('cat')) {
-    request('http://random.cat/meow', function(err, response, body) {
-      if (err) {
-        console.log(err)
-      }
-      let catJson = JSON.parse(body)
-      let catImg = new Discord.Attachment(catJson["file"])
-      msg.channel.send(catImg)
-    })
-  }
-
-  if (commandIs('roast')) {
-    if (args[1]) {
-      args.splice(0, 1)
-      let join = args.join(' ')
-      msg.channel.send(`${join} is stupid lmao :ok_hand:`)
-    } else {
-      msg.channel.send('```.repeat <message>\n\nFor the moist and the long to exploit lol.```')
-    }
-  }
-
-  if (commandIs('payban', 3) == 1) {
-
-  }
-
-  if (commandIs('surreal') || commandIs('meme')) {
-    request({url: 'https://reddit.com/r/surrealmemes/random.json', headers: {'User-agent': 'lolbot'}}, function(err, response, body) {
-      if (body[0] != '['){
-        console.log(body)
-        msg.channel.send('I am having difficulties connecting to reddit, try again later :D')
-        return
-      }
-      if (err) {
-        console.log(err)
-        return
-      }
-      let postJson = JSON.parse(body)
-      let imgUrl = postJson[0]['data']['children'][0]['data']['url']
-      msg.channel.send({file: imgUrl})
-    })
-  }
-
-  if (commandIs('thinking') || commandIs('think')) {
-    request({url: 'https://www.reddit.com/r/Thinking/random/.json', headers: {'User-agent': 'lolbot'}}, function(err, response, body) {
-      if (body[0] != '['){
-        console.log(body)
-        msg.channel.send('I am having difficulties connecting to reddit, try again later :D')
-        return
-      }
-      if (err) {
-        console.log(err)
-        return
-      }
-      let postJson = JSON.parse(body)
-      let imgUrl = postJson[0]['data']['children'][0]['data']['url']
-      msg.channel.send({file: imgUrl})
-    })
-  }
-
-  if (commandIs('math') && args[1]) {
-    msg.channel.send('Most likely not 9')
-  }
-
-  if (commandIs('encrypt')) {
-    let key = args[1]
-    let data = msg.content.substr(msg.content.indexOf(args[1]) + args[1].length + 1)
-    let result = new Buffer(xor(data, key)).toString('base64')
-    let embed = {
-      "description": `Results in an encrypted message that can be decrypted with \u0060.decrypt ${key} ${result}\u0060`,
-      "url": "https://discord.gg/cy33kkW",
-      "color": 40447,
-      "footer": {
-        "text": "Don't forget to join The Autistic Dimension at https://discord.gg/cy33kkW"
-      },
-      "author": {
-        "name": "Encryption",
-        "url": "https://discord.gg/cy33kkW",
-        "icon_url": msg.author.avatarURL
-      },
-      "fields": [
-        {
-          "name": "Key:",
-          "value": `\u0060${key}\u0060`,
-          "inline": true
-        },
-        {
-          "name": "Message:",
-          "value": `\u0060${data}\u0060`,
-          "inline": true
-        },
-        {
-          "name": "Result:",
-          "value": `\u0060${result}\u0060`,
-          "inline": true
-        }
-      ]
-    };
-    msg.channel.send(result, {embed})
-  }
-
-  if (commandIs('decrypt')) {
-    let key = args[1]
-    let b64data = msg.content.substr(msg.content.indexOf(args[2]))
-    let data = new Buffer(b64data, 'base64').toString('utf8')
-    let result = xor(data, key)
-    let embed = {
-      "description": `Results in a decrypted message`,
-      "url": "https://discord.gg/cy33kkW",
-      "color": 40447,
-      "footer": {
-        "text": "Don't forget to join The Autistic Dimension at https://discord.gg/cy33kkW"
-      },
-      "author": {
-        "name": "Decryption",
-        "url": "https://discord.gg/cy33kkW",
-        "icon_url": msg.author.avatarURL
-      },
-      "fields": [
-        {
-          "name": "Key:",
-          "value": `\u0060${key}\u0060`,
-          "inline": true
-        },
-        {
-          "name": "Encrypted Message:",
-          "value": `\u0060${b64data}\u0060`,
-          "inline": true
-        },
-        {
-          "name": "Result:",
-          "value": `\u0060${result}\u0060`,
-          "inline": true
-        }
-      ]
-    };
-    msg.channel.send(result, {embed})
   }
 */
 
