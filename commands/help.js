@@ -6,6 +6,10 @@ exports.run = (client, message, args) => {
     }
     cmdMsg += "\u0060\u0060\u0060"
     message.channel.send(cmdMsg)
+  } else if (client.commands[args[1]]) {
+    message.channel.send(`.${client.commands[args[1]].help.usage}`)
+  } else {
+    message.channel.send("Command not found :/")
   }
 }
 

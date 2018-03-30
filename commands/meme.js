@@ -2,7 +2,7 @@ const request = require("request")
 
 exports.run = (client, message, args) => {
   request({
-    url: 'https://reddit.com/r/surrealmemes/random.json',
+    url: 'https://reddit.com/r/dankmemes/random.json',
     headers: {
       'User-agent': 'lolbot'
     }

@@ -10,6 +10,7 @@ const request = require('request')
 const prefix = "."
 
 client.amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
+client.dig = JSON.parse(fs.readFileSync("./dig.json", "utf8"))
 //const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
 //const payday = JSON.parse(fs.readFileSync("./payday.json", "utf8"))
 let users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
@@ -54,7 +55,7 @@ client.on('message', message => {
   if (!client.amount[message.guild.id]) {
     client.amount[message.guild.id] = 3
 
-    fs.writeFile("./amount.json", JSON.stringify(amount), (err) => {
+    fs.writeFile("./amount.json", JSON.stringify(client.amount), (err) => {
       if (err) console.error(err)
     })
   }

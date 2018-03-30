@@ -1,4 +1,9 @@
 exports.run = (client, message, args) => {
+  if (!client.dig[msg.author.id]) {
+    client.dig[msg.author.id] = {
+      cooldown: Date.now()
+    }
+  }
   const objects = {"Common": {emote: ":urn:", name: "Potty boi"}, "Uncommon": {emote: ":gem:", name: "Hard pointy thing"}, "Rare": {emote: ":bathtub:", name: "Big water holder"}, "Legendary": {emote: "<:yod:420024599208525824>", name: "yes"}}
   let chance = Math.floor(Math.random() * 101)
   var dugObject = ""
