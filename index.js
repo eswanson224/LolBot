@@ -9,30 +9,39 @@ const request = require('request')
 
 const prefix = "."
 
-client.amount = JSON.parse(fs.readFileSync("./amount.json", "utf8"))
-client.dig = JSON.parse(fs.readFileSync("./dig.json", "utf8"))
+client.amount = JSON.parse(fs.readFileSync("./dbs/amount.json", "utf8"))
+client.dig = JSON.parse(fs.readFileSync("./dbs/dig.json", "utf8"))
 //const requests = JSON.parse(fs.readFileSync("./requests.json", "utf8"))
 //const payday = JSON.parse(fs.readFileSync("./payday.json", "utf8"))
-let users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
+let users = JSON.parse(fs.readFileSync("./dbs/users.json", "utf8"))
+let markov = JSON.parse(fs.readFileSync("./dbs/markov.json", "utf8"))
 
-client.words = fs.readFileSync("./words.txt", "utf8").split(/\r?\n/)
+client.words = fs.readFileSync("./dbs/words.txt", "utf8").split(/\r?\n/)
 
-const payCooldown = 900000
-const payAmount = 300
+// const payCooldown = 900000
+// const payAmount = 300
 
-//require('./functions.js')()
+let cleverbot = require('./cleverbot/cleverbot.js')
+client.key = "CleverBot Key"
+client.cs = {}
+
 client.config = require('./config.js')
 
 client.commands = {}
 client.aliases = {}
 
-fs.readdir("./commands", (err, files) => {
+fs.readdir("./commands", (err, files) =>
+{
   if (err) return console.error(err)
   files.forEach(f => {
+    if (!f.endsWith('.js')) return
+
     let command = require(`./commands/${f}`)
+    if (!command.conf.enabled) return
     console.log(chalk`{blue Loaded command ${command.help.name}}`)
     client.commands[command.help.name] = command
-    if (command.conf.aliases) {
+    if (command.conf.aliases)
+    {
       command.conf.aliases.forEach(a => {
         client.aliases[a] = command.help.name
       })
@@ -50,19 +59,30 @@ client.on('message', message => {
 
   if (message.channel.type == 'dm') return
 
-  const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
+  // const oof = new Discord.Attachment('./oof.jpg', 'oof.jpg')
 
   if (!client.amount[message.guild.id]) {
     client.amount[message.guild.id] = 3
 
-    fs.writeFile("./amount.json", JSON.stringify(client.amount), (err) => {
+    fs.writeFile("./dbs/amount.json", JSON.stringify(client.amount), (err) => {
       if (err) console.error(err)
     })
   }
 
   const args = message.content.split(" ")
 
-  users = JSON.parse(fs.readFileSync("./users.json", "utf8"))
+  // markov shid
+  /*
+  for (i = 0; i < args.length - 2; i++) {
+    if (!markov[`${args[i]} ${args[i + 1]}`]) markov[`${args[i]} ${args[i + 1]}`] = []
+    markov[`${args[i]} ${args[i + 1]}`].push(args[i + 2])
+  }
+  fs.writeFile("./dbs/markov.json", JSON.stringify(markov), (err) => {
+    if (err) console.error(err)
+  })
+  */
+
+  users = JSON.parse(fs.readFileSync("./dbs/users.json", "utf8"))
 
   var same = 0
 
@@ -76,7 +96,11 @@ client.on('message', message => {
 
   const command = args[0]
 
-  if (!command.startsWith(prefix)) return
+  if (!command.startsWith(prefix)) {
+    if (command == "<@376205502100537356>" || command == "<@!376205502100537356>") {
+      cleverbot.run(client, message, args)
+    } else return
+  }
 
   const cmd = client.commands[command.substr(1)] || client.commands[client.aliases[command.substr(1)]]
 
@@ -87,7 +111,7 @@ client.on('message', message => {
       cmd.run(client, message, args)
     }
     catch (err) {
-      message.channel.send("I'm sorry, there was an error.\nIf you have any questions or concerns please send a message to Moist")
+      message.channel.send("I'm sorry, there was an error.\nIf you have any questions or concerns please send a message to PizzaBit")
       client.users.get('193215265998110720').send(`Error: \u0060${err}\u0060 \nMessage: \u0060${message.content}\u0060 \nAuthor: \u0060${message.author.username}, ${message.author.id}\u0060`)
       console.log(chalk`\n{bold.red Error:} ${err} \n{yellow Message:} ${message.content} \n{yellow Author:} ${message.author.username}, ${message.author.id}`)
     }
@@ -182,5 +206,4 @@ client.on('message', message => {
 })
 
 
-client.login('Mzc2MjA1NTAyMTAwNTM3MzU2.DN7AMA.QtazoBVFw_iGVqEJLNVKCFCkEKA') //bot
-//client.login('MTkzMjE1MjY1OTk4MTEwNzIw.DMbDgQ.BgDrCMsyz02--zb_xinfFz-I91w') //me
+client.login('TOKEN-HERE') //bot

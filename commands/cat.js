@@ -1,7 +1,7 @@
 const request = require('request')
 
 exports.run = (client, message, args) => {
-  request('http://random.cat/meow', function(err, response, body) {
+  request('http://aws.random.cat/meow', function(err, response, body) {
     if (err) {
       console.log(err)
       message.channel.send("There was an error :/")

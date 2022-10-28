@@ -11,6 +11,6 @@ exports.conf = {
 
 exports.help = {
   name: "id",
-  description: "Returns a users ID (mainly for debugging)",
+  description: "Returns a users ID (mainly for debuggings)",
   usage: "id {@User}"
 }

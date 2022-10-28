@@ -1,17 +1,17 @@
 exports.run = (client, message, args) => {
-  if (!client.dig[msg.author.id]) {
-    client.dig[msg.author.id] = {
+  if (!client.dig[message.author.id]) {
+    client.dig[message.author.id] = {
       cooldown: Date.now()
     }
   }
   const objects = {"Common": {emote: ":urn:", name: "Potty boi"}, "Uncommon": {emote: ":gem:", name: "Hard pointy thing"}, "Rare": {emote: ":bathtub:", name: "Big water holder"}, "Legendary": {emote: "<:yod:420024599208525824>", name: "yes"}}
-  let chance = Math.floor(Math.random() * 101)
+  let chance = Math.floor(Math.random() * 1000)
   var dugObject = ""
   if (chance < 5) {
     dugObject = "Legendary"
-  } else if (chance < 20 && chance >= 5) {
+  } else if (chance < 100 && chance >= 5) {
     dugObject = "Rare"
-  } else if (chance < 40 && chance >= 20) {
+  } else if (chance < 500 && chance >= 20) {
     dugObject = "Uncommon"
   } else {
     dugObject = "Common"

@@ -10,7 +10,7 @@ exports.run = (client, message, args) => {
   }
 
   let key = args[1]
-  let data = message.content.substr(message.content.indexOf(args[1]) + args[1].length + 1)
+  let data = message.content.substr(message.content.indexOf(' ') + args[1].length + 1)
   let result = new Buffer(xor(data, key)).toString('base64')
   let embed = {
     "description": `Results in an encrypted message that can be decrypted with \u0060.decrypt ${key} ${result}\u0060`,

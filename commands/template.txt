@@ -1,0 +1,16 @@
+exports.run = (client, message, args) => {
+  // command stuff here
+}
+
+exports.conf = {
+  enabled: true,
+  guildOnly: false,
+  aliases: [],
+  permLevel: "User"
+}
+
+exports.help = {
+  name: "name",
+  description: "desc",
+  usage: "use"
+}
